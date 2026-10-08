@@ -106,11 +106,12 @@ services:
       - nginx-logs:/var/log/nginx
     networks:
       - edge
+      - ingress
     depends_on:
       web:
         condition: service_healthy
       pgadmin:
-        condition: service_started
+        condition: service_healthy
       grafana:
         condition: service_started
       prometheus:
@@ -157,13 +158,13 @@ services:
       - no-new-privileges:true
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:9090/-/healthy"]
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:9090/prometheus/-/healthy"]
       interval: 30s
       timeout: 5s
       retries: 5
 
   grafana:
-    image: grafana/grafana:13.2.1-slim
+    image: grafana/grafana:13.2.1
     environment:
       GF_SECURITY_ADMIN_USER: ${APP_ADMIN_USERNAME:?Set APP_ADMIN_USERNAME}
       GF_SECURITY_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD:?Set APP_ADMIN_PASSWORD}
@@ -192,6 +193,46 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
+  loki:
+    image: grafana/loki:3.6.11
+    command: ["-config.file=/etc/loki/config.yml"]
+    expose:
+      - "3100"
+    volumes:
+      - ./monitoring/loki/config.yml:/etc/loki/config.yml:ro
+      - loki-data:/loki
+    networks:
+      - observability
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+  promtail:
+    image: grafana/promtail:3.6.11
+    command: ["-config.file=/etc/promtail/config.yml"]
+    user: "101:2000"
+    volumes:
+      - ./monitoring/promtail/config.yml:/etc/promtail/config.yml:ro
+      - app-logs:/var/log/apartment:ro
+      - nginx-logs:/var/log/nginx:ro
+    networks:
+      - observability
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    depends_on:
+      loki:
+        condition: service_started
 
   postgres-exporter:
     image: quay.io/prometheuscommunity/postgres-exporter:v0.20.1
@@ -260,6 +301,8 @@ services:
     restart: unless-stopped
 
 networks:
+  ingress:
+    name: apartment-ingress
   edge:
     name: apartment-edge
     internal: true
@@ -280,3 +323,4 @@ volumes:
   nginx-logs:
   prometheus-data:
   grafana-data:
+  loki-data:

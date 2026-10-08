@@ -27,13 +27,12 @@ $values = @(
     "SESSION_SECRET=$sessionSecret",
     "POSTGRES_ADMIN_PASSWORD=$bootstrapPassword",
     "APARTMENT_DB_PASSWORD=$dbPassword",
-    "PGADMIN_EMAIL=admin@example.local",
+    "PGADMIN_EMAIL=admin@apartment-management-demo.com",
     "PGADMIN_PASSWORD=$pgadminPassword"
 )
 [System.IO.File]::WriteAllLines($envPath, $values, [System.Text.UTF8Encoding]::new($false))
 
 Write-Host "Created .env with random secrets."
-Write-Host "Web manager: quanly / $appPassword"
-Write-Host "Grafana admin uses the same username and password."
-Write-Host "pgAdmin: admin@example.local / $pgadminPassword"
+Write-Host "Web manager and Grafana use username: quanly (password is in .env)."
+Write-Host "pgAdmin: admin@apartment-management-demo.com (password is in .env)."
 Write-Host "Keep .env private; it is excluded from Git."

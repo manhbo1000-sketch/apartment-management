@@ -12,3 +12,6 @@ docs/rendered/
 docs/screenshots/private/
 .DS_Store
 Thumbs.db
+
+docs/*.docx
+docs/~$*.docx
