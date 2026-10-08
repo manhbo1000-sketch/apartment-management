@@ -41,18 +41,20 @@
       "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "single"}}
     },
     {
-      "id": 5, "type": "timeseries", "title": "Container CPU use",
+      "id": 5, "type": "timeseries", "title": "Container CPU (cores)",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 13},
       "datasource": {"type": "prometheus", "uid": "prometheus"},
-      "targets": [{"expr": "sum by (name) (rate(container_cpu_usage_seconds_total{id!=\"/\"}[5m]))", "legendFormat": "{{name}}", "refId": "A"}],
-      "fieldConfig": {"defaults": {"unit": "percentunit"}, "overrides": []},
+      "description": "CPU usage by Docker cgroup; legend shows the first 12 characters of the container ID. The Docker socket is not mounted into cAdvisor.",
+      "targets": [{"expr": "label_replace(sum by (id) (rate(container_cpu_usage_seconds_total{id=~\"/docker/[0-9a-f]{64}\"}[5m])), \"container\", \"$1\", \"id\", \".*/([0-9a-f]{12})[0-9a-f]{52}\")", "legendFormat": "{{container}}", "refId": "A"}],
+      "fieldConfig": {"defaults": {"unit": "cores"}, "overrides": []},
       "options": {"legend": {"displayMode": "table", "placement": "bottom"}, "tooltip": {"mode": "multi"}}
     },
     {
       "id": 6, "type": "timeseries", "title": "Container memory",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 13},
       "datasource": {"type": "prometheus", "uid": "prometheus"},
-      "targets": [{"expr": "sum by (name) (container_memory_working_set_bytes{id!=\"/\"})", "legendFormat": "{{name}}", "refId": "A"}],
+      "description": "Memory working set by Docker cgroup; legend shows the first 12 characters of the container ID. The Docker socket is not mounted into cAdvisor.",
+      "targets": [{"expr": "label_replace(container_memory_working_set_bytes{id=~\"/docker/[0-9a-f]{64}\"}, \"container\", \"$1\", \"id\", \".*/([0-9a-f]{12})[0-9a-f]{52}\")", "legendFormat": "{{container}}", "refId": "A"}],
       "fieldConfig": {"defaults": {"unit": "bytes"}, "overrides": []},
       "options": {"legend": {"displayMode": "table", "placement": "bottom"}, "tooltip": {"mode": "multi"}}
     },
@@ -74,3 +76,4 @@
   "annotations": {"list": []},
   "templating": {"list": []}
 }
+
