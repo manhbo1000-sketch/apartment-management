@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · An Bình Residence{% endblock %}
+{% block content %}
+<section class="error-page"><p class="eyebrow">AN BÌNH RESIDENCE</p><div class="error-code">{{ code }}</div><h1>{{ message }}</h1><a class="button button-primary" href="{{ url_for('main.dashboard') if current_user.is_authenticated else url_for('auth.login') }}">Quay lại hệ thống</a></section>
+{% endblock %}

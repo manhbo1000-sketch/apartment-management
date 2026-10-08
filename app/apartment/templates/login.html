@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Đăng nhập · An Bình Residence{% endblock %}
+{% block content %}
+<section class="login-layout">
+  <div class="login-story">
+    <p class="eyebrow">BAN QUẢN LÝ · AN BÌNH</p>
+    <h1>Mọi hoạt động trong tòa nhà, gọn trong một nơi.</h1>
+    <p>Theo dõi cư dân, phí dịch vụ, thông báo và phản ánh trên cùng một bảng điều khiển.</p>
+    <div class="story-stats"><span>01 <small>cổng quản lý</small></span><span>04 <small>nghiệp vụ chính</small></span></div>
+  </div>
+  <form class="login-card" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <p class="eyebrow">KHU VỰC QUẢN TRỊ</p>
+    <h2>Đăng nhập</h2>
+    <p class="muted">Sử dụng tài khoản quản lý được tạo khi khởi chạy dự án.</p>
+    <label for="username">Tên đăng nhập</label>
+    <input id="username" name="username" autocomplete="username" required autofocus>
+    <label for="password">Mật khẩu</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <button class="button button-primary button-wide" type="submit">Vào hệ thống <span aria-hidden="true">→</span></button>
+    <p class="form-note">Cư dân có thể gửi phản ánh qua <a href="{{ url_for('main.complaints') }}">biểu mẫu trực tuyến</a>.</p>
+  </form>
+</section>
+{% endblock %}

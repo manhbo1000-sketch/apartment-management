@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Phí dịch vụ · An Bình Residence{% endblock %}
+{% block content %}
+<section class="page-heading"><div><p class="eyebrow">TÀI CHÍNH TÒA NHÀ</p><h1>Phí dịch vụ</h1><p class="muted">Theo dõi khoản thu theo căn hộ và ghi nhận thanh toán.</p></div></section>
+<section class="stat-grid stat-grid-small">
+  <article class="stat-card"><div class="stat-label">ĐÃ THANH TOÁN</div><div class="stat-value">{{ totals.paid }}</div><div class="stat-foot">Khoản thu hoàn tất</div></article>
+  <article class="stat-card"><div class="stat-label">CHỜ THANH TOÁN</div><div class="stat-value">{{ totals.pending }}</div><div class="stat-foot">Tổng {{ "{:,.0f}".format(totals.amount) }} ₫</div></article>
+</section>
+<section class="panel table-panel">
+  <div class="panel-heading"><div><p class="eyebrow">DANH SÁCH KHOẢN THU</p><h2>Phí theo căn hộ</h2></div></div>
+  <div class="table-wrap"><table><thead><tr><th>Căn hộ</th><th>Cư dân</th><th>Khoản thu</th><th>Số tiền</th><th>Hạn nộp</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+    {% for item in fees %}<tr><td><strong>{{ item.apartment_no }}</strong></td><td>{{ item.full_name }}</td><td>{{ item.title }}</td><td>{{ "{:,.0f}".format(item.amount) }} ₫</td><td>{{ item.due_date.strftime("%d/%m/%Y") }}</td><td><span class="badge {% if item.status == 'Đã thu' %}badge-green{% else %}badge-amber{% endif %}">{{ item.status }}</span></td><td>{% if item.status == 'Chưa thu' %}<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="fee_id" value="{{ item.id }}"><button class="button button-small" type="submit">Ghi nhận thu</button></form>{% endif %}</td></tr>
+    {% else %}<tr><td colspan="7" class="empty-state">Chưa có khoản thu.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}
