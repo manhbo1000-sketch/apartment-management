@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Phản ánh · An Bình Residence{% endblock %}
+{% block content %}
+<section class="page-heading"><div><p class="eyebrow">LẮNG NGHE CƯ DÂN</p><h1>Phản ánh và góp ý</h1><p class="muted">Gửi thông tin để ban quản lý tiếp nhận và phản hồi.</p></div></section>
+<section class="content-grid complaint-layout">
+  <form class="panel stack-form" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div><p class="eyebrow">BIỂU MẪU TIẾP NHẬN</p><h2>Gửi phản ánh</h2></div>
+    <label>Họ và tên<input name="resident_name" required maxlength="120" placeholder="Tên cư dân"></label>
+    <div class="field-row"><label>Mã căn hộ<input name="apartment_no" required maxlength="20" placeholder="A-101"></label><label>Nhóm vấn đề<select name="category" required><option value="">Chọn nhóm</option><option>Vệ sinh</option><option>Thang máy</option><option>An ninh</option><option>Tiếng ồn</option><option>Khác</option></select></label></div>
+    <label>Nội dung<textarea name="content" rows="5" required minlength="10" maxlength="4000" placeholder="Mô tả sự việc và thời gian xảy ra"></textarea></label>
+    <button class="button button-primary" type="submit">Gửi đến ban quản lý <span aria-hidden="true">→</span></button>
+    <p class="form-note">Thông tin được lưu để ban quản lý xử lý. Không nhập mật khẩu hoặc dữ liệu nhạy cảm vào nội dung.</p>
+  </form>
+  {% if current_user.is_authenticated %}
+  <section class="panel table-panel">
+    <div class="panel-heading"><div><p class="eyebrow">BAN QUẢN LÝ</p><h2>Hàng đợi xử lý</h2></div><span class="count-pill">{{ complaints|length }}</span></div>
+    {% for item in complaints %}
+    <article class="complaint-card">
+      <div class="complaint-card-head"><div><strong>{{ item.category }} · {{ item.apartment_no }}</strong><small>{{ item.resident_name }} · {{ item.created_at.strftime("%d/%m/%Y %H:%M") }}</small></div><span class="badge {% if item.status == 'Đã giải quyết' %}badge-green{% else %}badge-amber{% endif %}">{{ item.status }}</span></div>
+      <p>{{ item.content }}</p>
+      <form method="post" action="{{ url_for('main.complaint_status', complaint_id=item.id) }}" class="status-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label class="visually-hidden" for="status-{{ item.id }}">Trạng thái</label><select id="status-{{ item.id }}" name="status"><option {% if item.status == 'Mới tiếp nhận' %}selected{% endif %}>Mới tiếp nhận</option><option {% if item.status == 'Đang xử lý' %}selected{% endif %}>Đang xử lý</option><option {% if item.status == 'Đã giải quyết' %}selected{% endif %}>Đã giải quyết</option></select><button class="button button-small" type="submit">Cập nhật</button></form>
+    </article>
+    {% else %}<p class="empty-state">Chưa có phản ánh.</p>{% endfor %}
+  </section>
+  {% else %}
+  <aside class="panel help-panel"><div class="help-mark">?</div><h2>Tiếp nhận trực tuyến</h2><p>Phản ánh sẽ được chuyển tới ban quản lý. Nếu cần xem tiến độ xử lý, vui lòng liên hệ quầy lễ tân.</p></aside>
+  {% endif %}
+</section>
+{% endblock %}

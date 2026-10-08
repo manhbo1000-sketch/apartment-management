@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Cư dân · An Bình Residence{% endblock %}
+{% block content %}
+<section class="page-heading"><div><p class="eyebrow">HỒ SƠ CƯ DÂN</p><h1>Danh sách cư dân</h1><p class="muted">Quản lý căn hộ và thông tin liên hệ.</p></div><span class="count-pill">{{ residents|length }} hồ sơ</span></section>
+<section class="panel form-panel">
+  <div class="panel-heading"><div><p class="eyebrow">THÊM HỒ SƠ</p><h2>Cư dân mới</h2></div></div>
+  <form method="post" class="inline-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Mã căn hộ<input name="apartment_no" placeholder="A-501" required maxlength="20"></label>
+    <label>Họ và tên<input name="full_name" placeholder="Nguyễn Văn A" required maxlength="120"></label>
+    <label>Số điện thoại<input name="phone" placeholder="090..." required maxlength="24"></label>
+    <label>Email<input name="email" type="email" placeholder="ten@example.com" maxlength="160"></label>
+    <button class="button button-primary" type="submit">Thêm cư dân</button>
+  </form>
+</section>
+<section class="panel table-panel">
+  <div class="panel-heading"><div><p class="eyebrow">CĂN HỘ</p><h2>Hồ sơ đang quản lý</h2></div></div>
+  <div class="table-wrap"><table><thead><tr><th>Căn hộ</th><th>Họ và tên</th><th>Điện thoại</th><th>Email</th><th>Trạng thái</th></tr></thead><tbody>
+    {% for item in residents %}<tr><td><strong>{{ item.apartment_no }}</strong></td><td>{{ item.full_name }}</td><td>{{ item.phone }}</td><td>{{ item.email or "—" }}</td><td><span class="badge badge-green">{{ item.status }}</span></td></tr>
+    {% else %}<tr><td colspan="5" class="empty-state">Chưa có hồ sơ cư dân.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

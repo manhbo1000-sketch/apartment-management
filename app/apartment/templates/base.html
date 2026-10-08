@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Cư dân An Bình{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/overrides.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('main.dashboard') if current_user.is_authenticated else url_for('auth.login') }}">
+      <span class="brand-mark">AB</span>
+      <span><strong>An Bình Residence</strong><small>Cổng quản lý chung cư</small></span>
+    </a>
+    {% if current_user.is_authenticated %}
+    <nav aria-label="Điều hướng chính">
+      <a href="{{ url_for('main.dashboard') }}">Tổng quan</a>
+      <a href="{{ url_for('main.residents') }}">Cư dân</a>
+      <a href="{{ url_for('main.fees') }}">Phí dịch vụ</a>
+      <a href="{{ url_for('main.announcements') }}">Thông báo</a>
+      <a href="{{ url_for('main.complaints') }}">Phản ánh</a>
+    </nav>
+    <div class="user-menu"><span>{{ current_user.id }}</span><form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="logout" type="submit">Đăng xuất</button></form></div>
+    {% endif %}
+  </header>
+
+  <main class="page-shell">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="flash-stack" aria-live="polite">
+        {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer">
+    <span>An Bình Residence</span>
+    <span>Hệ thống thực hành quản trị phần mềm</span>
+  </footer>
+</body>
+</html>

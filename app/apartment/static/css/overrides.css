@@ -1,0 +1,16 @@
+.user-menu form {
+  margin: 0;
+}
+
+.user-menu button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--green);
+  font: 700 12px "DM Sans", Arial, sans-serif;
+  cursor: pointer;
+}
+
+.user-menu button:hover {
+  text-decoration: underline;
+}
