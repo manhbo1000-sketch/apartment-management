@@ -44,7 +44,7 @@
       "id": 5, "type": "timeseries", "title": "Container CPU use",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 13},
       "datasource": {"type": "prometheus", "uid": "prometheus"},
-      "targets": [{"expr": "sum by (name) (rate(container_cpu_usage_seconds_total{id!="/"}[5m]))", "legendFormat": "{{name}}", "refId": "A"}],
+      "targets": [{"expr": "sum by (name) (rate(container_cpu_usage_seconds_total{id!=\"/\"}[5m]))", "legendFormat": "{{name}}", "refId": "A"}],
       "fieldConfig": {"defaults": {"unit": "percentunit"}, "overrides": []},
       "options": {"legend": {"displayMode": "table", "placement": "bottom"}, "tooltip": {"mode": "multi"}}
     },
@@ -52,7 +52,7 @@
       "id": 6, "type": "timeseries", "title": "Container memory",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 13},
       "datasource": {"type": "prometheus", "uid": "prometheus"},
-      "targets": [{"expr": "sum by (name) (container_memory_working_set_bytes{id!="/"})", "legendFormat": "{{name}}", "refId": "A"}],
+      "targets": [{"expr": "sum by (name) (container_memory_working_set_bytes{id!=\"/\"})", "legendFormat": "{{name}}", "refId": "A"}],
       "fieldConfig": {"defaults": {"unit": "bytes"}, "overrides": []},
       "options": {"legend": {"displayMode": "table", "placement": "bottom"}, "tooltip": {"mode": "multi"}}
     },
@@ -60,14 +60,14 @@
       "id": 7, "type": "logs", "title": "Recent application errors",
       "gridPos": {"h": 8, "w": 12, "x": 0, "y": 21},
       "datasource": {"type": "loki", "uid": "loki"},
-      "targets": [{"expr": "{service="apartment-web"} | json | level="ERROR"", "refId": "A"}],
+      "targets": [{"expr": "{service=\"apartment-web\"} | json | level=\"ERROR\"", "refId": "A"}],
       "options": {"showTime": true, "showLabels": true, "showCommonLabels": false, "wrapLogMessage": true, "prettifyLogMessage": false, "enableLogDetails": true, "dedupStrategy": "none", "sortOrder": "Descending"}
     },
     {
       "id": 8, "type": "logs", "title": "Recent Nginx access logs",
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 21},
       "datasource": {"type": "loki", "uid": "loki"},
-      "targets": [{"expr": "{service="nginx"} | json", "refId": "A"}],
+      "targets": [{"expr": "{service=\"nginx\"} | json", "refId": "A"}],
       "options": {"showTime": true, "showLabels": true, "showCommonLabels": false, "wrapLogMessage": true, "prettifyLogMessage": true, "enableLogDetails": true, "dedupStrategy": "none", "sortOrder": "Descending"}
     }
   ],
