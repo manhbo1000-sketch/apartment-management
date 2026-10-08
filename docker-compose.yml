@@ -282,6 +282,7 @@ services:
     image: ghcr.io/google/cadvisor:v0.60.6
     command:
       - --docker_only=true
+      - --raw_cgroup_prefix_whitelist=/docker
       - --housekeeping_interval=30s
       - --allow_dynamic_housekeeping=false
     expose:
@@ -324,3 +325,4 @@ volumes:
   prometheus-data:
   grafana-data:
   loki-data:
+
