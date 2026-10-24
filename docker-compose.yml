@@ -144,6 +144,7 @@ services:
       - "9090"
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro
       - prometheus-data:/prometheus
     networks:
       - edge
@@ -282,6 +283,7 @@ services:
     image: ghcr.io/google/cadvisor:v0.60.6
     command:
       - --docker_only=true
+      - --raw_cgroup_prefix_whitelist=/docker
       - --housekeeping_interval=30s
       - --allow_dynamic_housekeeping=false
     expose:
