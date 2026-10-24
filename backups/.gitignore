@@ -1,0 +1,3 @@
+# Database backups can contain personal and authentication data. Never commit them.
+*
+!.gitignore

@@ -15,3 +15,5 @@ Thumbs.db
 
 docs/*.docx
 docs/~$*.docx
+/backups/*
+!/backups/.gitignore
