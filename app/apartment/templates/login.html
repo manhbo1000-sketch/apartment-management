@@ -10,14 +10,14 @@
   </div>
   <form class="login-card" method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <p class="eyebrow">KHU VỰC QUẢN TRỊ</p>
+    <p class="eyebrow">CỔNG ĐĂNG NHẬP</p>
     <h2>Đăng nhập</h2>
-    <p class="muted">Sử dụng tài khoản quản lý được tạo khi khởi chạy dự án.</p>
+    <p class="muted">Ban quản lý dùng tài khoản hệ thống; cư dân dùng tài khoản được cấp theo căn hộ.</p>
     <label for="username">Tên đăng nhập</label>
     <input id="username" name="username" autocomplete="username" required autofocus>
     <label for="password">Mật khẩu</label>
     <input id="password" name="password" type="password" autocomplete="current-password" required>
-    <button class="button button-primary button-wide" type="submit">Vào hệ thống <span aria-hidden="true">→</span></button>
+    <button class="button button-primary button-wide" type="submit">Đăng nhập <span aria-hidden="true">→</span></button>
     <p class="form-note">Cư dân có thể gửi phản ánh qua <a href="{{ url_for('main.complaints') }}">biểu mẫu trực tuyến</a>.</p>
   </form>
 </section>

@@ -15,9 +15,26 @@
 </section>
 <section class="panel table-panel">
   <div class="panel-heading"><div><p class="eyebrow">CĂN HỘ</p><h2>Hồ sơ đang quản lý</h2></div></div>
-  <div class="table-wrap"><table><thead><tr><th>Căn hộ</th><th>Họ và tên</th><th>Điện thoại</th><th>Email</th><th>Trạng thái</th></tr></thead><tbody>
-    {% for item in residents %}<tr><td><strong>{{ item.apartment_no }}</strong></td><td>{{ item.full_name }}</td><td>{{ item.phone }}</td><td>{{ item.email or "—" }}</td><td><span class="badge badge-green">{{ item.status }}</span></td></tr>
-    {% else %}<tr><td colspan="5" class="empty-state">Chưa có hồ sơ cư dân.</td></tr>{% endfor %}
+  <div class="table-wrap"><table><thead><tr><th>Căn hộ</th><th>Họ và tên</th><th>Điện thoại</th><th>Email</th><th>Trạng thái</th><th>Tài khoản cư dân</th></tr></thead><tbody>
+    {% for item in residents %}<tr>
+      <td><strong>{{ item.apartment_no }}</strong></td><td>{{ item.full_name }}</td><td>{{ item.phone }}</td><td>{{ item.email or "—" }}</td><td><span class="badge badge-green">{{ item.status }}</span></td>
+      <td class="account-cell">
+        {% if item.account_username %}
+          <span class="badge badge-green">{{ item.account_username }} · đã cấp</span>
+        {% else %}
+          <form method="post" action="{{ url_for('main.create_resident_account', resident_id=item.id) }}" class="account-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label class="visually-hidden" for="account-user-{{ item.id }}">Tên đăng nhập</label>
+            <input id="account-user-{{ item.id }}" name="username" placeholder="Tên đăng nhập" required minlength="3" maxlength="64" autocomplete="off">
+            <label class="visually-hidden" for="account-pass-{{ item.id }}">Mật khẩu khởi tạo</label>
+            <input id="account-pass-{{ item.id }}" name="initial_password" type="password" placeholder="Mật khẩu khởi tạo" required minlength="12" maxlength="128" autocomplete="new-password">
+            <button class="button button-small" type="submit">Cấp tài khoản</button>
+          </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}<tr><td colspan="6" class="empty-state">Chưa có hồ sơ cư dân.</td></tr>{% endfor %}
   </tbody></table></div>
+  <p class="form-note">Mật khẩu khởi tạo chỉ lưu dưới dạng hash; hãy chuyển mật khẩu ban đầu cho cư dân riêng tư. Hệ thống buộc đổi mật khẩu ở lần đăng nhập đầu.</p>
 </section>
 {% endblock %}

@@ -15,13 +15,15 @@
     </a>
     {% if current_user.is_authenticated %}
     <nav aria-label="Điều hướng chính">
-      <a href="{{ url_for('main.dashboard') }}">Tổng quan</a>
+      <a href="{{ url_for('main.dashboard') }}">{{ 'Tổng quan' if current_user.is_admin else 'Cổng cư dân' }}</a>
+      {% if current_user.is_admin %}
       <a href="{{ url_for('main.residents') }}">Cư dân</a>
       <a href="{{ url_for('main.fees') }}">Phí dịch vụ</a>
       <a href="{{ url_for('main.announcements') }}">Thông báo</a>
+      {% endif %}
       <a href="{{ url_for('main.complaints') }}">Phản ánh</a>
     </nav>
-    <div class="user-menu"><span>{{ current_user.id }}</span><form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="logout" type="submit">Đăng xuất</button></form></div>
+    <div class="user-menu"><span>{{ current_user.display_name }}</span>{% if not current_user.is_admin %}<a href="{{ url_for('auth.change_password') }}">Đổi mật khẩu</a>{% endif %}<form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="logout" type="submit">Đăng xuất</button></form></div>
     {% endif %}
   </header>
 

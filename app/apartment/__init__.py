@@ -4,14 +4,14 @@ from logging.handlers import RotatingFileHandler
 from time import perf_counter
 
 import psycopg2
-from flask import Flask, Response, g, jsonify, render_template, request
+from flask import Flask, Response, g, jsonify, redirect, render_template, request, url_for
 from flask_login import LoginManager, current_user
 from flask_wtf.csrf import CSRFProtect
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import generate_password_hash
 
-from .auth import AdminUser, auth
+from .auth import auth, load_user
 from .database import connect, initialize_schema
 from .views import main
 
@@ -90,11 +90,7 @@ def create_app():
     login_manager.login_message = "Vui lòng đăng nhập để tiếp tục."
     login_manager.init_app(app)
 
-    @login_manager.user_loader
-    def load_user(user_id):
-        if user_id == app.config["ADMIN_USERNAME"]:
-            return AdminUser(user_id)
-        return None
+    login_manager.user_loader(load_user)
 
     app.register_blueprint(auth)
     app.register_blueprint(main)
@@ -102,6 +98,12 @@ def create_app():
     @app.before_request
     def start_timer():
         g.started_at = perf_counter()
+        if (
+            current_user.is_authenticated
+            and getattr(current_user, "must_change_password", False)
+            and request.endpoint not in {"auth.change_password", "auth.logout", "static"}
+        ):
+            return redirect(url_for("auth.change_password"))
 
     @app.after_request
     def record_request(response):
@@ -146,6 +148,12 @@ def create_app():
     @app.errorhandler(404)
     def not_found(_error):
         return render_template("error.html", code=404, message="Không tìm thấy trang."), 404
+
+    @app.errorhandler(403)
+    def forbidden(_error):
+        return render_template(
+            "error.html", code=403, message="Tài khoản của bạn không có quyền truy cập trang này."
+        ), 403
 
     @app.errorhandler(500)
     def server_error(_error):

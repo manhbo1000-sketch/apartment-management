@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Cổng cư dân · An Bình Residence{% endblock %}
+{% block content %}
+<section class="page-heading"><div><p class="eyebrow">CỔNG THÔNG TIN CƯ DÂN · CĂN {{ resident.apartment_no }}</p><h1>Xin chào, {{ resident.full_name }}</h1><p class="muted">Theo dõi phí và phản ánh của căn hộ bạn, cùng các thông báo chung từ ban quản lý.</p></div><a class="button button-primary" href="{{ url_for('main.complaints') }}">Gửi phản ánh <span aria-hidden="true">→</span></a></section>
+
+<section class="stat-grid stat-grid-small" aria-label="Tóm tắt tài khoản cư dân">
+  <article class="stat-card"><div class="stat-label">KHOẢN PHÍ CỦA CĂN HỘ</div><div class="stat-value">{{ fees|length }}</div><div class="stat-foot">Chỉ hiển thị dữ liệu căn {{ resident.apartment_no }}</div></article>
+  <article class="stat-card"><div class="stat-label">PHẢN ÁNH ĐANG THEO DÕI</div><div class="stat-value">{{ complaints|length }}</div><div class="stat-foot">Gửi phản ánh để ban quản lý tiếp nhận</div></article>
+</section>
+
+<section class="content-grid resident-content-grid">
+  <article class="panel table-panel">
+    <div class="panel-heading"><div><p class="eyebrow">TÀI CHÍNH CĂN HỘ</p><h2>Phí dịch vụ</h2></div></div>
+    <div class="table-wrap"><table class="resident-fees-table"><thead><tr><th>Khoản thu</th><th>Số tiền</th><th>Hạn nộp</th><th>Trạng thái</th></tr></thead><tbody>
+      {% for item in fees %}<tr><td>{{ item.title }}</td><td>{{ "{:,.0f}".format(item.amount) }} ₫</td><td>{{ item.due_date.strftime("%d/%m/%Y") }}</td><td><span class="badge {% if item.status == 'Đã thu' %}badge-green{% else %}badge-amber{% endif %}">{{ item.status }}</span></td></tr>
+      {% else %}<tr><td colspan="4" class="empty-state">Chưa có khoản phí.</td></tr>{% endfor %}
+    </tbody></table></div>
+  </article>
+  <article class="panel">
+    <div class="panel-heading"><div><p class="eyebrow">BAN QUẢN LÝ</p><h2>Thông báo mới</h2></div></div>
+    {% for item in notices %}<div class="notice-row"><div class="notice-icon">↗</div><div><h3>{{ item.title }}</h3><p>{{ item.body }}</p><small>{{ item.published_at.strftime("%d/%m/%Y %H:%M") }}</small></div></div>
+    {% else %}<p class="empty-state">Chưa có thông báo.</p>{% endfor %}
+  </article>
+</section>
+
+<section class="panel resident-complaints-panel">
+  <div class="panel-heading"><div><p class="eyebrow">TRẠNG THÁI XỬ LÝ</p><h2>Phản ánh của tôi</h2></div><a class="text-link" href="{{ url_for('main.complaints') }}">Gửi phản ánh <span aria-hidden="true">→</span></a></div>
+  {% for item in complaints %}<div class="complaint-row"><div><strong>{{ item.category }} · {{ item.content }}</strong><small>{{ item.created_at.strftime("%d/%m/%Y %H:%M") }}</small></div><span class="badge {% if item.status == 'Đã giải quyết' %}badge-green{% else %}badge-amber{% endif %}">{{ item.status }}</span></div>
+  {% else %}<p class="empty-state">Bạn chưa gửi phản ánh nào.</p>{% endfor %}
+</section>
+{% endblock %}

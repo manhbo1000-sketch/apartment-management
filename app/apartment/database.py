@@ -52,6 +52,7 @@ def initialize_schema():
         """
         CREATE TABLE IF NOT EXISTS complaints (
             id BIGSERIAL PRIMARY KEY,
+            resident_id BIGINT REFERENCES residents(id) ON DELETE SET NULL,
             resident_name VARCHAR(120) NOT NULL,
             apartment_no VARCHAR(20) NOT NULL,
             category VARCHAR(60) NOT NULL,
@@ -60,6 +61,31 @@ def initialize_schema():
                 CHECK (status IN ('Mới tiếp nhận', 'Đang xử lý', 'Đã giải quyết')),
             created_at TIMESTAMPTZ NOT NULL DEFAULT now()
         )
+        """,
+        """
+        ALTER TABLE complaints
+        ADD COLUMN IF NOT EXISTS resident_id BIGINT
+            REFERENCES residents(id) ON DELETE SET NULL
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS resident_accounts (
+            id BIGSERIAL PRIMARY KEY,
+            resident_id BIGINT NOT NULL UNIQUE
+                REFERENCES residents(id) ON DELETE CASCADE,
+            username VARCHAR(64) NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            active BOOLEAN NOT NULL DEFAULT TRUE,
+            must_change_password BOOLEAN NOT NULL DEFAULT TRUE,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        )
+        """,
+        """
+        CREATE INDEX IF NOT EXISTS fees_resident_due_date_idx
+        ON fees (resident_id, due_date DESC)
+        """,
+        """
+        CREATE INDEX IF NOT EXISTS complaints_resident_created_idx
+        ON complaints (resident_id, created_at DESC)
         """,
         """
         INSERT INTO residents (apartment_no, full_name, phone, email)

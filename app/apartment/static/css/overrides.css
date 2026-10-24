@@ -14,3 +14,67 @@
 .user-menu button:hover {
   text-decoration: underline;
 }
+
+.account-cell {
+  min-width: 260px;
+}
+
+.account-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 7px;
+  min-width: 210px;
+}
+
+.account-form input {
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  font: 11px "DM Sans", Arial, sans-serif;
+}
+
+.account-form button {
+  justify-self: start;
+}
+
+.resident-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid #dfebe2;
+  border-radius: 9px;
+  background: #eff5f0;
+  font-size: 12px;
+}
+
+.resident-identity span,
+.password-panel label small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.password-panel {
+  max-width: 540px;
+}
+
+.resident-content-grid {
+  grid-template-columns: 1.1fr .9fr;
+}
+
+.resident-fees-table {
+  min-width: 520px;
+}
+
+.resident-complaints-panel {
+  margin-top: 18px;
+}
+
+@media (max-width: 650px) {
+  .resident-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
