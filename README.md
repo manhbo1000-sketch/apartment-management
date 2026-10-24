@@ -9,6 +9,8 @@
 - Thêm cư dân, theo dõi phí và ghi nhận thanh toán.
 - Đăng thông báo cho cư dân.
 - Nhận phản ánh công khai và cập nhật trạng thái xử lý sau khi đăng nhập.
+- Cấp tài khoản cư dân gắn với căn hộ; cư dân chỉ xem phí, thông báo và phản ánh của chính mình.
+- Phân quyền quản lý/cư dân; tài khoản cư dân phải đổi mật khẩu khởi tạo trước khi vào cổng.
 - pgAdmin để xem cấu trúc và dữ liệu PostgreSQL.
 - Dashboard Grafana được provision tự động, gồm metrics ứng dụng, Nginx, PostgreSQL và container.
 - Loki truy vấn log ứng dụng và access log Nginx bằng LogQL.
@@ -39,7 +41,7 @@ Docker dùng bốn mạng. apartment-ingress chỉ gắn với Nginx để publi
 
 Yêu cầu Docker Desktop đang chạy và hỗ trợ Docker Compose.
 
-1. Tạo các mật khẩu ngẫu nhiên cục bộ. PowerShell tại thư mục dự án:
+1. Chỉ khi chưa có `.env`, tạo mật khẩu ngẫu nhiên cục bộ. Nếu `.env` đã tồn tại, bỏ qua bước này; script cố ý không ghi đè bí mật cũ:
 
    ~~~powershell
    ./scripts/new-secrets.ps1
@@ -69,7 +71,9 @@ Yêu cầu Docker Desktop đang chạy và hỗ trợ Docker Compose.
    | Grafana | http://localhost:8080/grafana/ |
    | Prometheus | http://localhost:8080/prometheus/ |
 
-   Đăng nhập ứng dụng bằng APP_ADMIN_USERNAME và APP_ADMIN_PASSWORD trong .env. Grafana dùng cùng cặp tên đăng nhập/mật khẩu. pgAdmin dùng PGADMIN_EMAIL và PGADMIN_PASSWORD.
+   Các địa chỉ dùng cổng mặc định `8080`. Nếu cổng này đang được website khác dùng, đổi `HTTP_PORT` trong `.env` (ví dụ `8081`) rồi dùng cổng mới trong các địa chỉ trên.
+
+   Đăng nhập ứng dụng quản lý bằng APP_ADMIN_USERNAME và APP_ADMIN_PASSWORD trong .env. Grafana dùng cùng cặp tên đăng nhập/mật khẩu. pgAdmin dùng PGADMIN_EMAIL và PGADMIN_PASSWORD.
 
 5. Trong pgAdmin, đăng ký máy chủ nếu chưa có sẵn:
 
@@ -81,6 +85,10 @@ Yêu cầu Docker Desktop đang chạy và hỗ trợ Docker Compose.
 
    Database chỉ nhận kết nối từ mạng Docker nội bộ. Không dùng apartment_admin cho ứng dụng; tài khoản này chỉ bootstrap PostgreSQL.
 
+6. Khi muốn demo cổng cư dân, đăng nhập quản lý → Cư dân → tạo một tài khoản cho căn hộ mẫu. Đưa tên đăng nhập và mật khẩu ban đầu cho người dùng qua kênh riêng. Mở cửa sổ ẩn danh hoặc trình duyệt khác, đăng nhập bằng tài khoản cư dân và đổi mật khẩu ở lần đầu. Cư dân chỉ thấy phí và phản ánh của căn hộ mình cùng các thông báo chung; các trang quản trị bị từ chối.
+
+   Schema tài khoản và liên kết phản ánh được tạo tự động khi web khởi động. Khi nâng cấp từ volume database cũ, dùng `docker compose up -d --build`; không cần xóa volume.
+
 ## Giám sát
 
 Dashboard Apartment Management Overview được nạp tự động vào Grafana trong folder Apartment operations. Mở Dashboards → Apartment operations để xem:
@@ -89,6 +97,10 @@ Dashboard Apartment Management Overview được nạp tự động vào Grafana
 - Trạng thái exporter PostgreSQL và kết nối Nginx.
 - CPU và bộ nhớ container từ cAdvisor.
 - Log lỗi ứng dụng và access log Nginx từ Loki.
+
+Prometheus nạp các quy tắc trong `monitoring/prometheus/alert-rules.yml`. Mở `/prometheus/alerts` để xem `ApartmentWebUnavailable` và `PrometheusScrapeTargetUnavailable`. Cảnh báo chuyển sang Firing nếu điều kiện DOWN kéo dài ít nhất một phút. Lab hiển thị trạng thái trên Prometheus; chưa cấu hình gửi email/chat ra ngoài.
+
+Để trình diễn an toàn: chạy `docker compose stop web`, đợi khoảng 1–2 phút, mở trang Alerts và Targets để thấy alert/target DOWN; sau đó chạy `docker compose start web`, chờ healthcheck và scrape hồi phục. Chỉ dừng service của dự án này trong lúc demo.
 
 Một số biểu thức PromQL để kiểm tra nhanh:
 
@@ -128,6 +140,8 @@ Promtail đọc hai volume log chỉ-đọc: log JSON của ứng dụng và acc
 - no-new-privileges được bật cho các dịch vụ ứng dụng và quan sát.
 - PostgreSQL không publish cổng ra host; database thuộc mạng internal.
 - Ứng dụng và exporter dùng role apartment_app không có quyền superuser, tạo database hoặc tạo role. Role có pg_monitor để exporter thu thập số liệu đọc.
+- Tài khoản quản lý lấy từ `.env`; tài khoản cư dân lưu riêng trong bảng `resident_accounts` với mật khẩu đã băm. Route quản lý được bảo vệ bằng kiểm tra role ở phía server, không chỉ ẩn nút trên giao diện.
+- Mỗi tài khoản cư dân gắn với một hồ sơ cư dân duy nhất. Truy vấn phí và phản ánh của cổng cư dân lọc theo `resident_id`; biểu mẫu phản ánh lấy tên/căn hộ từ session đăng nhập thay vì tin dữ liệu trình duyệt gửi lên.
 - Mật khẩu được tạo ngẫu nhiên và lưu trong .env, được .gitignore loại khỏi Git. Không dùng giá trị trong .env.example để chạy.
 - Nginx đặt giới hạn request đăng nhập và security headers gồm CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy.
 - CSRF được bật cho biểu mẫu; cookie phiên có HttpOnly và SameSite=Lax; dữ liệu biểu mẫu được truy vấn bằng tham số SQL.
@@ -144,6 +158,26 @@ PostgreSQL tự tạo role ứng dụng khi khởi tạo volume lần đầu; �
 - Khởi động lại: docker compose up -d
 - Xóa toàn bộ dữ liệu demo: docker compose down -v (xóa database, Grafana, pgAdmin, Loki và log volumes)
 
+## Sao lưu và kiểm tra khôi phục PostgreSQL
+
+Tạo bản sao lưu custom-format bằng `pg_dump` bên trong container PostgreSQL:
+
+~~~powershell
+./scripts/backup-postgres.ps1
+Get-ChildItem .\backups\apartment-*.dump
+~~~
+
+Các file nằm trong `backups/` bị loại khỏi Git vì có thể chứa dữ liệu cư dân và tài khoản. Giữ bản sao lưu ở nơi riêng tư.
+
+Thử khôi phục gần nhất vào database cô lập `apartment_restore_test`:
+
+~~~powershell
+$backup = Get-ChildItem .\backups\apartment-*.dump | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+./scripts/restore-postgres-test.ps1 -BackupPath $backup.FullName
+~~~
+
+Script chỉ xóa/tạo lại đúng database kiểm thử `apartment_restore_test`, sau đó dùng `pg_restore` và in số bản ghi theo bảng. Database hoạt động `apartment` không bị sửa. Chạy stack trước khi backup/restore. Đây là quy trình demo trong máy lab; vận hành thật cần thêm lịch tự động, lưu ngoài máy và chính sách giữ/khôi phục bản sao.
+
 ## Bố cục repository
 
 ~~~text
@@ -151,11 +185,15 @@ app/                              Flask app, templates, CSS và Dockerfile
 db/init/                          Tạo role PostgreSQL giới hạn quyền
 nginx/                            Reverse proxy và cấu hình security headers
 monitoring/prometheus/            Cấu hình scrape targets
+monitoring/prometheus/alert-rules.yml  Cảnh báo target và ứng dụng DOWN
 monitoring/grafana/               Datasource provisioning và dashboard
 monitoring/loki/                  Cấu hình lưu log
 monitoring/promtail/              Pipeline đọc log ứng dụng/Nginx
 scripts/new-secrets.ps1           Tạo bí mật ngẫu nhiên cho máy lab
+scripts/backup-postgres.ps1       Tạo bản sao lưu PostgreSQL
+scripts/restore-postgres-test.ps1 Khôi phục thử vào DB cô lập
 docs/                             Báo cáo và checklist ảnh minh chứng
+backups/                          Bản sao lưu cục bộ, bị Git bỏ qua
 docker-compose.yml                Toàn bộ stack
 ~~~
 
